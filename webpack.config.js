@@ -1,5 +1,24 @@
 var path = require('path');
 
+
+const commonLoaders = {
+    css: {
+      loader: 'css-loader',
+      options: {
+        sourceMap: true
+      }
+    },
+    cssModules: {
+      loader: 'css-loader',
+      options: {
+        modules: true,
+        sourceMap: true,
+        importLoaders: 1,
+        localIdentName: '[name]__[local]__[hash:base64:5]'
+      }
+    }
+  }
+
 module.exports = {
     entry: './src/picker.js',
     output: {
@@ -19,7 +38,22 @@ module.exports = {
                         presets: ['env']
                     }
                 }
+            },
+            {
+                test: /\.global\.css$/,
+                use: [
+                  'style-loader',
+                  commonLoaders.css
+                ]
+            },
+            {
+                test: /^((?!\.global).)*\.css$/,
+                use: [
+                  'style-loader',
+                  commonLoaders.cssModules
+                ]
             }
+
         ]
     },
     externals: {

@@ -1,5 +1,5 @@
 {
-  "name": "react-custom-datepicker",
+  "name": "react-customview-datepicker",
   "version": "1.0.0",
   "description": "Customized date picker for react.",
   "main": "build/index.js",
@@ -31,7 +31,9 @@
   },
   "homepage": "https://github.com/cjoshi85/react-custom-datepicker#readme",
   "dependencies": {
-    "moment": "^2.15.1"
+    "css-loader": "^1.0.1",
+    "moment": "^2.15.1",
+    "style-loader": "^0.21.0"
   },
   "devDependencies": {
     "react": "^16.8.1",
