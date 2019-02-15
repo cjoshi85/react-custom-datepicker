@@ -16912,6 +16912,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _typeof(obj) { if (typeof Symbol === "function" && _typeof(Symbol.iterator) === "symbol") { _typeof = function (_typeof2) { function _typeof(_x) { return _typeof2.apply(this, arguments); } _typeof.toString = function () { return _typeof2.toString(); }; return _typeof; }(function (obj) { return _typeof(obj); }); } else { _typeof = function (_typeof3) { function _typeof(_x2) { return _typeof3.apply(this, arguments); } _typeof.toString = function () { return _typeof3.toString(); }; return _typeof; }(function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof(obj); }); } return _typeof(obj); }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -16932,23 +16936,133 @@ var Picker = function (_React$Component) {
   _inherits(Picker, _React$Component);
 
   function Picker(props) {
-    var _this;
+    var _this2;
 
     _classCallCheck(this, Picker);
 
-    _this = _possibleConstructorReturn(this, (Picker.__proto__ || Object.getPrototypeOf(Picker)).call(this, props));
+    _this2 = _possibleConstructorReturn(this, (Picker.__proto__ || Object.getPrototypeOf(Picker)).call(this, props));
 
-    _defineProperty(_this, "handleChange", function (event, type) {
-      _this.setState(_defineProperty({}, type, event.target.value));
+    _defineProperty(_this2, "handleChange", function (event, type) {
+      _this2.setState(_defineProperty({}, type, event.target.value));
 
-      _this.checkDate(event.target.value, type);
+      _this2.checkDate(event.target.value, type);
     });
 
-    _defineProperty(_this, "checkDate", function (value, type) {
-      var _this$state = _this.state,
-          date = _this$state.date,
-          month = _this$state.month,
-          year = _this$state.year;
+    _defineProperty(_this2, "createListeners", function () {
+      var _this2$state = _this2.state,
+          next = _this2$state.next,
+          previous = _this2$state.previous,
+          dateCalendar = _this2$state.dateCalendar;
+      var _this = _this2;
+      next.addEventListener('click', function () {
+        _this.clearCalendar();
+
+        var nextMonth = dateCalendar.getMonth() + 1;
+        dateCalendar.setMonth(nextMonth);
+
+        _this.monthCalendar();
+      }); // Clears the calendar and shows the previous month
+
+      previous.addEventListener('click', function () {
+        _this.clearCalendar();
+
+        var prevMonth = dateCalendar.getMonth() - 1;
+        dateCalendar.setMonth(prevMonth);
+
+        _this.monthCalendar();
+      });
+    });
+
+    _defineProperty(_this2, "dayCalendar", function (num, day) {
+      var _this2$state2 = _this2.state,
+          dateCalendar = _this2$state2.dateCalendar,
+          todaysDate = _this2$state2.todaysDate,
+          monthCalendar = _this2$state2.monthCalendar;
+      var newDay = document.createElement('div');
+      var dateEl = document.createElement('span');
+      dateEl.innerHTML = num;
+      newDay.className = 'calendar-date';
+      newDay.setAttribute('data-calendar-date', dateCalendar); // if it's the first day of the month
+
+      if (num === 1) {
+        if (day === 0) {
+          newDay.style.marginLeft = 6 * 14.28 + '%';
+        } else {
+          newDay.style.marginLeft = (day - 1) * 14.28 + '%';
+        }
+      }
+
+      newDay.classList.add('calendar-date-active');
+
+      if (dateCalendar.toString() === todaysDate.toString()) {
+        newDay.classList.add('calendar-date-today');
+      }
+
+      newDay.appendChild(dateEl);
+      monthCalendar.appendChild(newDay);
+    });
+
+    _defineProperty(_this2, "dateClicked", function () {
+      var classname = document.getElementsByClassName("calendar-date-active");
+      var _this = _this2;
+
+      for (var i = 0; i < classname.length; i++) {
+        classname[i].addEventListener('click', function (s) {
+          _this.setState({
+            activeDates: classname
+          });
+
+          _this.removeActiveClass();
+
+          _this.props.onChange((0, _moment2.default)(s.currentTarget.dataset.calendarDate).format());
+
+          s.currentTarget.classList.add('calendar-date-selected'); //classname[i].classList.add('calendar-date-selected')
+        });
+      }
+    });
+
+    _defineProperty(_this2, "monthCalendar", function () {
+      var _this2$state3 = _this2.state,
+          dateCalendar = _this2$state3.dateCalendar,
+          label = _this2$state3.label;
+      var currentMonth = dateCalendar.getMonth();
+
+      while (dateCalendar.getMonth() === currentMonth) {
+        _this2.dayCalendar(dateCalendar.getDate(), dateCalendar.getDay());
+
+        dateCalendar.setDate(dateCalendar.getDate() + 1);
+      } // Set the date and month as previous after the loop is over
+
+
+      dateCalendar.setDate(1);
+      dateCalendar.setMonth(dateCalendar.getMonth() - 1);
+      label.innerHTML = _this2.findMonth(dateCalendar.getMonth()) + ' ' + dateCalendar.getFullYear();
+
+      _this2.dateClicked();
+    });
+
+    _defineProperty(_this2, "findMonth", function (monthIndex) {
+      return _this2.state.list_months[monthIndex + 1];
+    });
+
+    _defineProperty(_this2, "clearCalendar", function () {
+      var monthCalendar = _this2.state.monthCalendar;
+      monthCalendar.innerHTML = '';
+    });
+
+    _defineProperty(_this2, "removeActiveClass", function () {
+      var activeDates = _this2.state.activeDates;
+
+      for (var i = 0; i < activeDates.length; i++) {
+        activeDates[i].classList.remove('calendar-date-selected');
+      }
+    });
+
+    _defineProperty(_this2, "checkDate", function (value, type) {
+      var _this2$state4 = _this2.state,
+          date = _this2$state4.date,
+          month = _this2$state4.month,
+          year = _this2$state4.year;
 
       if (type === 'date') {
         date = value;
@@ -16963,98 +17077,188 @@ var Picker = function (_React$Component) {
       } else {
         var obj = date + '-' + month + '-' + year;
 
-        _this.props.onChange((0, _moment2.default)(obj).format());
+        _this2.props.onChange((0, _moment2.default)(obj).format());
       }
     });
 
-    _this.state = {
+    _this2.state = {
       date: 'Day',
       month: 'Month',
       year: 'Year',
       selectDate: '',
-      tags: 'option'
+      tags: 'option',
+      monthCalendar: null,
+      next: null,
+      previous: null,
+      label: null,
+      activeDates: null,
+      dateCalendar: new Date(),
+      todaysDate: new Date(),
+      list_months: ['Month', 'January', 'Febuary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     };
-    return _this;
+    return _this2;
   }
 
   _createClass(Picker, [{
     key: "componentDidMount",
-    value: function componentDidMount() {
-      //Initializing the default values
-      var i,
-          l,
-          months = "",
-          years = "";
-      var list_months = ['Month', 'January', 'Febuary', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-      var dates = "";
-      var tags = this.state.tags; // Creating the date select option
+    value: function () {
+      var _ref = _asyncToGenerator(
+      /*#__PURE__*/
+      regeneratorRuntime.mark(function _callee() {
+        var i, l, months, years, dates, _this$state, tags, list_months, multiple_list;
 
-      dates += "<" + tags + ">Day</" + tags + ">";
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                //Initializing the default values
+                months = "", years = "";
+                dates = "";
+                _this$state = this.state, tags = _this$state.tags, list_months = _this$state.list_months; // Creating the date select option
 
-      for (i = 1; i < 32; i++) {
-        dates += "<" + tags + ">" + i + "</" + tags + ">";
-      } //Inserting date data into the html code				
+                if (!(this.props.type === 'dropdown')) {
+                  _context.next = 17;
+                  break;
+                }
 
+                dates += "<" + tags + ">Day</" + tags + ">";
 
-      var multiple_list = document.getElementsByClassName("dates");
-
-      for (i = 0; i < multiple_list.length; i++) {
-        multiple_list[i].innerHTML = dates;
-      } //Creating the month data
-
-
-      for (i = 0, l = list_months.length, months = ""; i < l; i++) {
-        months += "<" + tags + ">" + list_months[i] + "</" + tags + ">";
-      } //Inserting month data into the html code
+                for (i = 1; i < 32; i++) {
+                  dates += "<" + tags + ">" + i + "</" + tags + ">";
+                } //Inserting date data into the html code				
 
 
-      multiple_list = document.getElementsByClassName("months");
+                multiple_list = document.getElementsByClassName("dates");
 
-      for (i = 0; i < multiple_list.length; i++) {
-        multiple_list[i].innerHTML = months;
-      } //Creating the Year data
-
-
-      years += "<" + tags + ">Year</" + tags + ">";
-
-      for (i = 1900; i < 3000 + 1; i++) {
-        years += "<" + tags + ">" + i + "</" + tags + ">";
-      } //Inserting the year data into the html
+                for (i = 0; i < multiple_list.length; i++) {
+                  multiple_list[i].innerHTML = dates;
+                } //Creating the month data
 
 
-      multiple_list = document.getElementsByClassName("years");
+                for (i = 0, l = list_months.length, months = ""; i < l; i++) {
+                  months += "<" + tags + ">" + list_months[i] + "</" + tags + ">";
+                } //Inserting month data into the html code
 
-      for (i = 0; i < multiple_list.length; i++) {
-        multiple_list[i].innerHTML = years;
+
+                multiple_list = document.getElementsByClassName("months");
+
+                for (i = 0; i < multiple_list.length; i++) {
+                  multiple_list[i].innerHTML = months;
+                } //Creating the Year data
+
+
+                years += "<" + tags + ">Year</" + tags + ">";
+
+                for (i = 1900; i < 3000 + 1; i++) {
+                  years += "<" + tags + ">" + i + "</" + tags + ">";
+                } //Inserting the year data into the html
+
+
+                multiple_list = document.getElementsByClassName("years");
+
+                for (i = 0; i < multiple_list.length; i++) {
+                  multiple_list[i].innerHTML = years;
+                }
+
+                _context.next = 23;
+                break;
+
+              case 17:
+                if (!(this.props.type === 'calendar')) {
+                  _context.next = 23;
+                  break;
+                }
+
+                _context.next = 20;
+                return this.setState({
+                  monthCalendar: document.getElementsByClassName('calendar-month')[0],
+                  next: document.querySelectorAll('[calendar-month="next"]')[0],
+                  previous: document.querySelectorAll('[calendar-month="previous"]')[0],
+                  label: document.getElementsByClassName('calendar-month-label')[0]
+                });
+
+              case 20:
+                this.state.dateCalendar.setDate(1);
+                this.monthCalendar();
+                this.createListeners();
+
+              case 23:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee, this);
+      }));
+
+      function componentDidMount() {
+        return _ref.apply(this, arguments);
       }
-    } // Method to handle the change event on date
+
+      return componentDidMount;
+    }() // Method to handle the change event on date
 
   }, {
     key: "render",
     value: function render() {
-      var _this2 = this;
+      var _this3 = this;
 
-      return _react2.default.createElement("div", {
-        className: "container"
-      }, _react2.default.createElement("select", {
-        className: "dates",
-        defaultValue: "date",
-        onChange: function onChange(e) {
-          return _this2.handleChange(e, 'date');
-        }
-      }), _react2.default.createElement("select", {
-        className: "months",
-        defaultValue: "month",
-        onChange: function onChange(e) {
-          return _this2.handleChange(e, 'month');
-        }
-      }), _react2.default.createElement("select", {
-        className: "years",
-        defaultValue: "year",
-        onChange: function onChange(e) {
-          return _this2.handleChange(e, 'year');
-        }
-      }));
+      if (this.props.type === 'dropdown') {
+        return _react2.default.createElement("div", {
+          className: "container"
+        }, _react2.default.createElement("select", {
+          className: "dates",
+          defaultValue: "date",
+          onChange: function onChange(e) {
+            return _this3.handleChange(e, 'date');
+          }
+        }), _react2.default.createElement("select", {
+          className: "months",
+          defaultValue: "month",
+          onChange: function onChange(e) {
+            return _this3.handleChange(e, 'month');
+          }
+        }), _react2.default.createElement("select", {
+          className: "years",
+          defaultValue: "year",
+          onChange: function onChange(e) {
+            return _this3.handleChange(e, 'year');
+          }
+        }));
+      } else if (this.props.type === 'calendar') {
+        return _react2.default.createElement("div", {
+          id: "calendar"
+        }, _react2.default.createElement("div", {
+          className: "calendar-header"
+        }, _react2.default.createElement("button", {
+          className: "calendar-btn",
+          "calendar-month": "previous"
+        }, _react2.default.createElement("svg", {
+          height: "24",
+          version: "1.1",
+          viewBox: "0 0 24 24",
+          width: "24",
+          xmlns: "http://www.w3.org/2000/svg"
+        }, _react2.default.createElement("path", {
+          d: "M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z"
+        }))), _react2.default.createElement("div", {
+          className: "calendar-month-label"
+        }, "Feb 2019"), _react2.default.createElement("button", {
+          className: "calendar-btn",
+          "calendar-month": "next"
+        }, _react2.default.createElement("svg", {
+          height: "24",
+          version: "1.1",
+          viewBox: "0 0 24 24",
+          width: "24",
+          xmlns: "http://www.w3.org/2000/svg"
+        }, _react2.default.createElement("path", {
+          d: "M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z"
+        })))), _react2.default.createElement("div", {
+          className: "calendar-week"
+        }, _react2.default.createElement("span", null, "M"), _react2.default.createElement("span", null, "T"), _react2.default.createElement("span", null, "W"), _react2.default.createElement("span", null, "T"), _react2.default.createElement("span", null, "F"), _react2.default.createElement("span", null, "S"), _react2.default.createElement("span", null, "S")), _react2.default.createElement("div", {
+          className: "calendar-month"
+        }));
+      }
     }
   }]);
 

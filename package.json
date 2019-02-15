@@ -1,23 +1,35 @@
 {
-  "name": "react-dropdown-datepicker",
-  "version": "1.0.6",
-  "description": "Dropdown date picker for react.",
+  "name": "react-custom-datepicker",
+  "version": "1.0.0",
+  "description": "Customized date picker for react.",
   "main": "build/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack --watch",
     "build": "webpack"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cjoshi85/react-custom-datepicker.git"
+  },
   "keywords": [
     "react-dropdown-date",
     "dropdown",
     "dropdown-datepicker",
+    "calendar-datepicker",
+    "customized",
+    "customized-datepicker",
+    "custom-date-picker",
     "date-picker",
     "react",
     "react-date"
   ],
   "author": "Chetan Joshi",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cjoshi85/react-custom-datepicker/issues"
+  },
+  "homepage": "https://github.com/cjoshi85/react-custom-datepicker#readme",
   "dependencies": {
     "moment": "^2.15.1"
   },
