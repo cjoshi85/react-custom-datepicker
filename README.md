@@ -9,5 +9,5 @@ Example =>
 
 Here type can have two values (calendar and dropdown)
 
-![Alt text](screenshot.jpg?raw=true "calendar")
-![Alt text](screenshot.jpg?raw=true "calendar")
+![Calendar_view](screenshot.JPG?raw=true "calendar")
+![Dropdown_view](screenshot.JPG?raw=true "calendar")
