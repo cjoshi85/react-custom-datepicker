@@ -2,21 +2,21 @@ Customized DatePicker with option of dropdown and calendar view by just passing 
 
 **Getting Started**
 
-######Install
+###### Install
 npm install react-custom-datepicker --save
 or
 
 yarn add react-custom-datepicker
 
-######Import
+###### Import
 
 import DatePicker from 'react-custom-datepicker';
 
-######Dependencies
+###### Dependencies
 
 moment
 
-######Datepicker
+###### Datepicker
 
 ```
 import React, { Component } from 'react';
